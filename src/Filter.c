@@ -50,7 +50,7 @@ Filter* filter_new(filter_type_t type, float cutoff, int order)
       if(self->coeffs == NULL) return filter_destroy(self);
       filter_set_window_type(self, FILTER_WINDOW_BLACKMANN); //triggers calculation of window and coeffs
     }
-  
+
   return self;
 }
 
@@ -82,9 +82,9 @@ void            filter_clear          (Filter* self)
 /*-------------------------------------------------*/
 void filter_set_filter_type(Filter* self, filter_type_t type)
 {
-  if((self->type == type) /*|| (type < 0)*/ || (type >= FILTER_NUMBER_OF_TYPES)) 
+  if((self->type == type) /*|| (type < 0)*/ || (type >= FILTER_NUMBER_OF_TYPES))
     return;
-  
+
   self->type = type;
   filter_set_cutoff(self, self->cutoff);
 }
@@ -113,10 +113,10 @@ void filter_set_cutoff(Filter* self, float cutoff)
 {
   self->cutoff = cutoff;
   void (*init_coeffs)(Filter*) = NULL;
-  
+
   switch(self->type)
     {
-      case FILTER_LOW_PASS : 
+      case FILTER_LOW_PASS :
         init_coeffs = filter_init_lowpass_coeffs;
         break;
       case FILTER_HIGH_PASS:
@@ -166,10 +166,10 @@ void filter_set_window_type(Filter* self, filter_window_t window)
 
   self->window_type = window;
   void (*init_window)(Filter*) = NULL;
-  
+
   switch(self->window_type)
     {
-      case FILTER_WINDOW_RECT : 
+      case FILTER_WINDOW_RECT :
         init_window = filter_init_rect_window;
         break;
       case FILTER_WINDOW_HANN:
@@ -187,7 +187,7 @@ void filter_set_window_type(Filter* self, filter_window_t window)
   if(init_window != NULL)
     init_window(self);
 
-  filter_set_cutoff(self, self->cutoff);  
+  filter_set_cutoff(self, self->cutoff);
 }
 
 /*-------------------------------------------------*/
@@ -202,7 +202,7 @@ void filter_init_lowpass_coeffs(Filter* self)
   int i, n=self->order+1;
   float m_over_2 = self->order / 2.0;
   float f_t = self->cutoff / self->sample_rate;
-  float two_pi_f_t = TWO_PI * f_t;  
+  float two_pi_f_t = TWO_PI * f_t;
   float i_minus_m_over_2;
   float temp;
 
@@ -219,7 +219,7 @@ void filter_init_lowpass_coeffs(Filter* self)
 
       temp *= self->window[i];
       self->coeffs[i] = temp;
-    }  
+    }
 }
 
 /*-------------------------------------------------*/
@@ -232,7 +232,7 @@ void filter_init_highpass_coeffs(Filter* self)
   int i, n=self->order+1;
   float m_over_2 = self->order / 2.0;
   float f_t = self->cutoff / self->sample_rate;
-  float two_pi_f_t = TWO_PI * f_t;  
+  float two_pi_f_t = TWO_PI * f_t;
   float i_minus_m_over_2;
   float temp;
 
@@ -262,7 +262,7 @@ void filter_init_bandpass_coeffs(Filter* self)
   float two_pi_f_t = TWO_PI * f_t;
   float i_minus_m_over_2;
   float temp;
-  
+
   for(i=0; i<n; i++)
     {
       if(i != m_over_2)
@@ -283,7 +283,7 @@ void filter_init_bandpass_coeffs(Filter* self)
 /*-------------------------------------------------*/
 void filter_init_bandstop_coeffs(Filter* self)
 {
-
+    (void) self;
 }
 
 /*-------------------------------------------------*/
@@ -318,7 +318,7 @@ void filter_init_hamming_window(Filter* self)
     {
       self->window[i] = 0.54 - 0.46 * cos(phase);
       phase += phase_increment;
-    }  
+    }
 }
 
 /*-------------------------------------------------*/
@@ -331,12 +331,12 @@ void filter_init_blackmann_window(Filter* self)
   double a0 = (1-a)/2.0;
   double a1 = 1/2.0;
   double a2 = a/2.0;
-  
+
   for(i=0; i<n; i++)
     {
       self->window[i] = a0 - a1*cos(phase) + a2*cos(2*phase);
       phase += phase_increment;
-    } 
+    }
 }
 
 /*-------------------------------------------------*/
@@ -353,11 +353,10 @@ void    filter_process_data(Filter* self, float* data, int num_samples)
       self->prev_samples[0] = *data;
 
       //calculate filter output
-      output = 0;      
+      output = 0;
       for(i=0; i<n; i++)
         output += self->prev_samples[i] * self->coeffs[i];
 
       *data++ = output;
     }
 }
-
